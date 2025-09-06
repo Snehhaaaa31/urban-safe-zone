@@ -140,21 +140,25 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
           mapContainerClassName="rounded-2xl overflow-hidden"
         >
           {/* Markers */}
-          {markers.map((marker, index) => (
-            <Marker
-              key={index}
-              position={marker}
-              icon={isApiLoaded ? {
-                url: "data:image/svg+xml;base64," + btoa(`
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#3b82f6"/>
-                    <circle cx="12" cy="9" r="2.5" fill="white"/>
-                  </svg>
-                `),
-                scaledSize: new google.maps.Size(32, 32),
-              } : undefined}
-            />
-          ))}
+          {markers.map((marker, index) => {
+            const markerIcon = isApiLoaded ? {
+              url: "data:image/svg+xml;base64," + btoa(`
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#3b82f6"/>
+                  <circle cx="12" cy="9" r="2.5" fill="white"/>
+                </svg>
+              `),
+              scaledSize: new google.maps.Size(32, 32),
+            } : undefined;
+
+            return (
+              <Marker
+                key={index}
+                position={marker}
+                icon={markerIcon}
+              />
+            );
+          })}
 
           {/* Heatmap Layer - only render when data is available */}
           {heatmapData.length > 0 && (
