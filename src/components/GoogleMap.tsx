@@ -22,13 +22,23 @@ const mapOptions = {
   fullscreenControl: false,
 };
 
-// Placeholder heatmap coordinates
+// Enhanced heatmap coordinates with more data points for better visibility
 const heatmapCoordinates = [
   { lat: 28.6139, lng: 77.2090 },
   { lat: 28.6149, lng: 77.2100 },
   { lat: 28.6129, lng: 77.2080 },
   { lat: 28.6159, lng: 77.2110 },
   { lat: 28.6119, lng: 77.2070 },
+  { lat: 28.6169, lng: 77.2120 },
+  { lat: 28.6109, lng: 77.2060 },
+  { lat: 28.6179, lng: 77.2130 },
+  { lat: 28.6099, lng: 77.2050 },
+  { lat: 28.6189, lng: 77.2140 },
+  { lat: 28.6089, lng: 77.2040 },
+  { lat: 28.6199, lng: 77.2150 },
+  { lat: 28.6079, lng: 77.2030 },
+  { lat: 28.6209, lng: 77.2160 },
+  { lat: 28.6069, lng: 77.2020 },
 ];
 
 interface GoogleMapComponentProps {
@@ -160,28 +170,20 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
             );
           })}
 
-          {/* Heatmap Layer - only render when data is available */}
+          {/* Heatmap Layer - Enhanced for better visibility */}
           {heatmapData.length > 0 && (
             <HeatmapLayer
               data={heatmapData}
               options={{
-                radius: 50,
-                opacity: 0.6,
+                radius: 80,
+                opacity: 0.8,
+                maxIntensity: 100,
+                dissipating: true,
                 gradient: [
-                  "rgba(0, 255, 255, 0)",
-                  "rgba(0, 255, 255, 1)",
-                  "rgba(0, 191, 255, 1)",
-                  "rgba(0, 127, 255, 1)",
-                  "rgba(0, 63, 255, 1)",
-                  "rgba(0, 0, 255, 1)",
-                  "rgba(0, 0, 223, 1)",
-                  "rgba(0, 0, 191, 1)",
-                  "rgba(0, 0, 159, 1)",
-                  "rgba(0, 0, 127, 1)",
-                  "rgba(63, 0, 91, 1)",
-                  "rgba(127, 0, 63, 1)",
-                  "rgba(191, 0, 31, 1)",
-                  "rgba(255, 0, 0, 1)"
+                  "rgba(0, 255, 0, 0)",      // Transparent green
+                  "rgba(255, 255, 0, 0.7)",  // Yellow 
+                  "rgba(255, 165, 0, 0.8)",  // Orange
+                  "rgba(255, 0, 0, 1)"       // Red (high crime areas)
                 ]
               }}
             />
