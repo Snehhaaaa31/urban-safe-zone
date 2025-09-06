@@ -12,7 +12,12 @@ interface Message {
   timestamp: Date;
 }
 
-const ChatBox = () => {
+interface ChatBoxProps {
+  onRouteHighlight?: (route: any) => void;
+  className?: string;
+}
+
+const ChatBox = ({ onRouteHighlight, className }: ChatBoxProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -77,7 +82,7 @@ const ChatBox = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-card border border-border rounded-2xl">
+    <div className={`flex flex-col h-full bg-card border border-border rounded-2xl ${className || ""}`}>
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center space-x-2">
