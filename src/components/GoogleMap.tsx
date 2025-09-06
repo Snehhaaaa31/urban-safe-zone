@@ -56,11 +56,28 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
   const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
     setIsApiLoaded(true);
-    // Create heatmap data after Google Maps API is loaded
-    const heatmapPoints = heatmapCoordinates.map(coord => 
-      new google.maps.LatLng(coord.lat, coord.lng)
-    );
-    setHeatmapData(heatmapPoints);
+    
+    // Ensure visualization library is loaded before creating heatmap data
+    if (window.google && window.google.maps && window.google.maps.visualization) {
+      console.log('Creating heatmap data with', heatmapCoordinates.length, 'points');
+      const heatmapPoints = heatmapCoordinates.map(coord => 
+        new google.maps.LatLng(coord.lat, coord.lng)
+      );
+      setHeatmapData(heatmapPoints);
+      console.log('Heatmap data created:', heatmapPoints.length, 'points');
+    } else {
+      console.error('Google Maps visualization library not loaded');
+      // Retry after a short delay
+      setTimeout(() => {
+        if (window.google && window.google.maps && window.google.maps.visualization) {
+          const heatmapPoints = heatmapCoordinates.map(coord => 
+            new google.maps.LatLng(coord.lat, coord.lng)
+          );
+          setHeatmapData(heatmapPoints);
+          console.log('Heatmap data created (delayed):', heatmapPoints.length, 'points');
+        }
+      }, 1000);
+    }
   }, []);
 
   const onUnmount = useCallback(() => {
@@ -111,6 +128,8 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
     <LoadScript
       googleMapsApiKey="AIzaSyCS9FOUebt88LT6W7uTjd2u9d6LgpRpkJs"
       libraries={libraries}
+      onLoad={handleScriptLoad}
+      onError={handleScriptError}
       loadingElement={
         <div className="h-full w-full flex items-center justify-center bg-muted rounded-2xl">
           <div className="text-center">
