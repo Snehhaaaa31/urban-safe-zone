@@ -40,11 +40,12 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
   const [markers, setMarkers] = useState([center]);
   const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
   const [heatmapData, setHeatmapData] = useState<google.maps.LatLng[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isApiLoaded, setIsApiLoaded] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
+    setIsApiLoaded(true);
     // Create heatmap data after Google Maps API is loaded
     const heatmapPoints = heatmapCoordinates.map(coord => 
       new google.maps.LatLng(coord.lat, coord.lng)
@@ -54,6 +55,7 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
 
   const onUnmount = useCallback(() => {
     setMap(null);
+    setIsApiLoaded(false);
   }, []);
 
   const onSearchBoxLoad = useCallback((ref: google.maps.places.SearchBox) => {
@@ -85,6 +87,15 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
       }
     }
   }, [searchBox, map, onLocationSelect]);
+
+  const handleScriptLoad = useCallback(() => {
+    setIsApiLoaded(true);
+  }, []);
+
+  const handleScriptError = useCallback(() => {
+    console.error('Failed to load Google Maps API');
+    setIsApiLoaded(false);
+  }, []);
 
   return (
     <LoadScript
@@ -133,7 +144,7 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
             <Marker
               key={index}
               position={marker}
-              icon={{
+              icon={isApiLoaded ? {
                 url: "data:image/svg+xml;base64," + btoa(`
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#3b82f6"/>
@@ -141,7 +152,7 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
                   </svg>
                 `),
                 scaledSize: new google.maps.Size(32, 32),
-              }}
+              } : undefined}
             />
           ))}
 
