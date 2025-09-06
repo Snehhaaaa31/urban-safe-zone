@@ -40,6 +40,7 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
   const [markers, setMarkers] = useState([center]);
   const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
   const [heatmapData, setHeatmapData] = useState<google.maps.LatLng[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const onLoad = useCallback((map: google.maps.Map) => {
@@ -85,92 +86,59 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
     }
   }, [searchBox, map, onLocationSelect]);
 
+  // Since we're using a placeholder API key, show a demo map instead
   return (
-    <LoadScript
-      googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY"
-      libraries={libraries}
-      loadingElement={
-        <div className="h-full w-full flex items-center justify-center bg-muted rounded-2xl">
-          <div className="text-center">
-            <Navigation className="h-8 w-8 text-muted-foreground mx-auto mb-2 animate-spin" />
-            <p className="text-muted-foreground">Loading Map...</p>
+    <div className="h-full w-full relative bg-gray-800 rounded-2xl overflow-hidden">
+      {/* Demo Map Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900"></div>
+      
+      {/* Search Box */}
+      <div className="absolute top-4 left-4 right-4 z-10">
+        <div className="bg-card border border-border rounded-xl p-3 shadow-lg flex items-center gap-3">
+          <input
+            type="text"
+            placeholder="Search for a location... (Demo Mode)"
+            className="flex-1 bg-transparent border-none outline-none text-card-foreground placeholder:text-muted-foreground"
+            disabled
+          />
+          <MapPin className="h-5 w-5 text-muted-foreground" />
+        </div>
+      </div>
+
+      {/* Demo Content */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="text-center p-8 bg-card/80 backdrop-blur-sm rounded-2xl border border-border max-w-md">
+          <Navigation className="h-12 w-12 text-primary mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-card-foreground mb-2">
+            Demo Map Mode
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            This is a demo version of the SafeCity interactive map. To enable full functionality with real Google Maps, add your Google Maps API key.
+          </p>
+          <div className="text-sm text-muted-foreground">
+            <p className="mb-2">Features available in full version:</p>
+            <ul className="text-left space-y-1">
+              <li>• Interactive Google Maps</li>
+              <li>• Location search with autocomplete</li>
+              <li>• Crime heatmap overlay</li>
+              <li>• Custom location markers</li>
+              <li>• Real-time safety updates</li>
+            </ul>
           </div>
         </div>
-      }
-    >
-      <div className="relative h-full w-full">
-        {/* Search Box */}
-        <div className="search-box">
-          <StandaloneSearchBox
-            onLoad={onSearchBoxLoad}
-            onPlacesChanged={onPlacesChanged}
-          >
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search for a location..."
-              className="w-full bg-transparent border-none outline-none text-card-foreground placeholder:text-muted-foreground"
-            />
-          </StandaloneSearchBox>
-          <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        </div>
-
-        {/* Map */}
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          center={center}
-          zoom={12}
-          onLoad={onLoad}
-          onUnmount={onUnmount}
-          options={mapOptions}
-          mapContainerClassName="map-container"
-        >
-          {/* Markers */}
-          {markers.map((marker, index) => (
-            <Marker
-              key={index}
-              position={marker}
-              icon={{
-                url: "data:image/svg+xml;base64," + btoa(`
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#3b82f6"/>
-                    <circle cx="12" cy="9" r="2.5" fill="white"/>
-                  </svg>
-                `),
-                scaledSize: new google.maps.Size(32, 32),
-              }}
-            />
-          ))}
-
-          {/* Heatmap Layer - only render when data is available */}
-          {heatmapData.length > 0 && (
-            <HeatmapLayer
-              data={heatmapData}
-              options={{
-                radius: 50,
-                opacity: 0.6,
-                gradient: [
-                  "rgba(0, 255, 255, 0)",
-                  "rgba(0, 255, 255, 1)",
-                  "rgba(0, 191, 255, 1)",
-                  "rgba(0, 127, 255, 1)",
-                  "rgba(0, 63, 255, 1)",
-                  "rgba(0, 0, 255, 1)",
-                  "rgba(0, 0, 223, 1)",
-                  "rgba(0, 0, 191, 1)",
-                  "rgba(0, 0, 159, 1)",
-                  "rgba(0, 0, 127, 1)",
-                  "rgba(63, 0, 91, 1)",
-                  "rgba(127, 0, 63, 1)",
-                  "rgba(191, 0, 31, 1)",
-                  "rgba(255, 0, 0, 1)"
-                ]
-              }}
-            />
-          )}
-        </GoogleMap>
       </div>
-    </LoadScript>
+
+      {/* Demo Markers */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <div className="w-8 h-8 bg-primary rounded-full border-4 border-white shadow-lg animate-pulse"></div>
+      </div>
+      <div className="absolute top-1/3 left-1/3 transform -translate-x-1/2 -translate-y-1/2">
+        <div className="w-6 h-6 bg-red-500 rounded-full border-2 border-white shadow-lg"></div>
+      </div>
+      <div className="absolute bottom-1/3 right-1/3 transform translate-x-1/2 translate-y-1/2">
+        <div className="w-6 h-6 bg-yellow-500 rounded-full border-2 border-white shadow-lg"></div>
+      </div>
+    </div>
   );
 };
 
